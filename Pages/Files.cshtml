@@ -1,0 +1,49 @@
+﻿@page
+@model p2pclient.Pages.FilesModel
+@{
+    ViewData["Title"] = "File Management";
+}
+
+<h2>File Management</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div>
+        <label for="ServerUrl">Server URL:</label>
+        <input type="text" id="ServerUrl" name="ServerUrl" asp-for="ServerUrl" />
+    </div>
+    <div>
+        <label for="FileId">File ID to Download:</label>
+        <input type="number" id="FileId" name="FileId" asp-for="FileId" />
+        <button type="submit" asp-page-handler="Download">Download File</button>
+    </div>
+    <div>
+        <label for="Upload">Upload File:</label>
+        <input type="file" id="Upload" name="Upload" asp-for="Upload" />
+        <button type="submit" asp-page-handler="Upload">Upload File</button>
+    </div>
+</form>
+
+<hr />
+
+<h3>Files List</h3>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>File Name</th>
+            <th>File Size</th>
+            <th>Uploaded At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var file in Model.Files)
+        {
+            <tr>
+                <td>@file.Id</td>
+                <td>@file.FileName</td>
+                <td>@file.FileSize</td>
+                <td>@file.UploadedAt</td>
+            </tr>
+        }
+    </tbody>
+</table>
