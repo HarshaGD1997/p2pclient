@@ -1,54 +1,13 @@
 ﻿@page
 @model p2pclient.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to the P2P File Sharing Application</h1>
+    <p class="lead">This application allows you to upload, download, and manage files in a peer-to-peer network.</p>
+    <hr class="my-4">
+    <p>Get started by managing your files.</p>
+    <a class="btn btn-primary btn-lg" href="/Files" role="button">Manage Files</a>
 </div>
-
-<h2>File Management</h2>
-
-<form method="post" enctype="multipart/form-data">
-    <div>
-        <label for="ServerUrl">Server URL:</label>
-        <input type="text" id="ServerUrl" name="ServerUrl" asp-for="ServerUrl" />
-    </div>
-    <div>
-        <label for="FileId">File ID to Download:</label>
-        <input type="number" id="FileId" name="FileId" asp-for="FileId" />
-        <button type="submit" asp-page-handler="Download">Download File</button>
-    </div>
-    <div>
-        <label for="Upload">Upload File:</label>
-        <input type="file" id="Upload" name="Upload" asp-for="Upload" />
-        <button type="submit" asp-page-handler="Upload">Upload File</button>
-    </div>
-</form>
-
-<hr />
-
-<h3>Files List</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>File Name</th>
-            <th>File Size</th>
-            <th>Uploaded At</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var file in Model.Files)
-        {
-            <tr>
-                <td>@file.Id</td>
-                <td>@file.FileName</td>
-                <td>@file.FileSize</td>
-                <td>@file.UploadedAt</td>
-            </tr>
-        }
-    </tbody>
-</table>

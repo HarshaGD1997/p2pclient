@@ -30,6 +30,9 @@ namespace p2pclient.Pages
         [BindProperty]
         public IFormFile Upload { get; set; }
 
+        [BindProperty]
+        public string ErrorMessage { get; set; }
+
         public async Task OnGet()
         {
             ServerUrl = "http://localhost:5117"; // Default server URL
@@ -38,16 +41,29 @@ namespace p2pclient.Pages
 
         public async Task<IActionResult> OnPostDownloadAsync()
         {
-            var response = await _httpClient.GetAsync($"{ServerUrl}/api/files/{FileId}");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                var fileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"') ?? $"file_{FileId}";
+                var response = await _httpClient.GetAsync($"{ServerUrl}/api/files/{FileId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var fileBytes = await response.Content.ReadAsByteArrayAsync();
+                    var fileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"') ?? $"file_{FileId}";
 
-                return File(fileBytes, "application/octet-stream", fileName);
+                    return File(fileBytes, "application/octet-stream", fileName);
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    ErrorMessage = "File not found.";
+                }
+                else
+                {
+                    ErrorMessage = "Failed to download file.";
+                }
             }
-
-            ModelState.AddModelError(string.Empty, "Failed to download file.");
+            catch (HttpRequestException ex)
+            {
+                ErrorMessage = $"Error downloading file: {ex.Message}";
+            }
             await LoadFiles();
             return Page();
         }
@@ -56,20 +72,31 @@ namespace p2pclient.Pages
         {
             if (Upload != null && Upload.Length > 0)
             {
-                using (var content = new MultipartFormDataContent())
+                try
                 {
-                    var fileStream = Upload.OpenReadStream();
-                    var streamContent = new StreamContent(fileStream);
-                    content.Add(streamContent, "file", Upload.FileName);
-
-                    var response = await _httpClient.PostAsync($"{ServerUrl}/api/files", content);
-                    if (response.IsSuccessStatusCode)
+                    using (var content = new MultipartFormDataContent())
                     {
-                        return RedirectToPage();
-                    }
+                        var fileStream = Upload.OpenReadStream();
+                        var streamContent = new StreamContent(fileStream);
+                        content.Add(streamContent, "file", Upload.FileName);
 
-                    ModelState.AddModelError(string.Empty, "Failed to upload file.");
+                        var response = await _httpClient.PostAsync($"{ServerUrl}/api/files", content);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            return RedirectToPage();
+                        }
+
+                        ErrorMessage = "Failed to upload file.";
+                    }
                 }
+                catch (HttpRequestException ex)
+                {
+                    ErrorMessage = $"Error uploading file: {ex.Message}";
+                }
+            }
+            else
+            {
+                ErrorMessage = "No file selected for upload.";
             }
 
             await LoadFiles();
@@ -78,15 +105,23 @@ namespace p2pclient.Pages
 
         private async Task LoadFiles()
         {
-            var response = await _httpClient.GetAsync($"{ServerUrl}/api/files");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                Files = await response.Content.ReadFromJsonAsync<List<FileMetadata>>();
+                var response = await _httpClient.GetAsync($"{ServerUrl}/api/files");
+                if (response.IsSuccessStatusCode)
+                {
+                    Files = await response.Content.ReadFromJsonAsync<List<FileMetadata>>();
+                }
+                else
+                {
+                    Files = new List<FileMetadata>();
+                    ErrorMessage = "Failed to load files.";
+                }
             }
-            else
+            catch (HttpRequestException ex)
             {
+                ErrorMessage = $"Error loading files: {ex.Message}";
                 Files = new List<FileMetadata>();
-                ModelState.AddModelError(string.Empty, "Failed to load files.");
             }
         }
     }

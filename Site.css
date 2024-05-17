@@ -1,0 +1,16 @@
+﻿/* Custom styles for the application */
+body {
+    padding-top: 56px;
+}
+
+footer {
+    padding: 1rem 0;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+.alert {
+    margin-top: 1rem;
+}

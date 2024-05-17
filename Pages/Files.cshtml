@@ -23,6 +23,13 @@
     </div>
 </form>
 
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
+
 <hr />
 
 <h3>Files List</h3>

@@ -1,34 +1,20 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddHttpClient();
-
-builder.WebHost.ConfigureKestrel(options =>
+namespace p2pclient
 {
-    options.ListenAnyIP(5000); // Listen on port 5000 for HTTP
-    options.ListenAnyIP(5001, listenOptions =>
+    public class Program
     {
-        listenOptions.UseHttps(); // Listen on port 5001 for HTTPS
-    });
-});
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
-
-app.Run();
